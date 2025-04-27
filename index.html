@@ -1,0 +1,1382 @@
+<html class="scroll-smooth" lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   CrownCove Shop  &amp; Auth
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&amp;display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js">
+  </script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js">
+  </script>
+  <style>
+   body {
+      font-family: 'Montserrat', sans-serif;
+    }
+  </style>
+ </head>
+ <body class="bg-gray-50 min-h-screen flex flex-col">
+  <!-- Navigation -->
+  <nav class="bg-white shadow sticky top-0 z-50">
+   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+    <a class="flex items-center space-x-2" href="#">
+     <img alt="Nike brand icon, black swoosh logo on white background" class="w-10 h-10" height="40" id="brand-icon" src="https://storage.googleapis.com/a1aa/image/b97e0fc4-e158-4667-a82b-0f958ac94ca4.jpg" width="40"/>
+     <span class="text-2xl font-bold text-gray-900" id="brand-name">
+      Nike
+     </span>
+    </a>
+    <div class="hidden md:flex space-x-6 text-gray-700 font-semibold">
+     <a class="hover:text-black transition" href="#products">
+      Products
+     </a>
+     <a class="hover:text-black transition" href="#categories">
+      Categories
+     </a>
+     <a class="hover:text-black transition" href="#advertising">
+      Advertising
+     </a>
+     <a class="hover:text-black transition relative" href="#cart">
+      <i class="fas fa-shopping-cart text-xl">
+      </i>
+      <span class="absolute -top-2 -right-3 bg-red-600 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center" id="cart-count">
+       0
+      </span>
+     </a>
+     <button class="hover:text-black transition" id="login-btn">
+      Login
+     </button>
+     <button class="hover:text-black transition" id="signup-btn">
+      Sign Up
+     </button>
+     <button class="hover:text-black transition hidden" id="admin-btn">
+      Admin Dashboard
+     </button>
+     <button class="hover:text-black transition hidden" id="logout-btn">
+      Logout
+     </button>
+    </div>
+    <div class="md:hidden">
+     <button aria-label="Open menu" class="text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black" id="mobile-menu-btn">
+      <i class="fas fa-bars text-2xl">
+      </i>
+     </button>
+    </div>
+   </div>
+   <div class="hidden md:hidden bg-white shadow" id="mobile-menu">
+    <a class="block px-4 py-2 border-b border-gray-200 hover:bg-gray-100" href="#products">
+     Products
+    </a>
+    <a class="block px-4 py-2 border-b border-gray-200 hover:bg-gray-100" href="#categories">
+     Categories
+    </a>
+    <a class="block px-4 py-2 border-b border-gray-200 hover:bg-gray-100" href="#advertising">
+     Advertising
+    </a>
+    <a class="block px-4 py-2 border-b border-gray-200 hover:bg-gray-100 flex items-center space-x-2" href="#cart">
+     <i class="fas fa-shopping-cart">
+     </i>
+     <span>
+      Cart (
+      <span id="cart-count-mobile">
+       0
+      </span>
+      )
+     </span>
+    </a>
+    <button class="w-full text-left px-4 py-2 border-b border-gray-200 hover:bg-gray-100" id="login-btn-mobile">
+     Login
+    </button>
+    <button class="w-full text-left px-4 py-2 border-b border-gray-200 hover:bg-gray-100" id="signup-btn-mobile">
+     Sign Up
+    </button>
+    <button class="w-full text-left px-4 py-2 border-b border-gray-200 hover:bg-gray-100 hidden" id="admin-btn-mobile">
+     Admin Dashboard
+    </button>
+    <button class="w-full text-left px-4 py-2 border-b border-gray-200 hover:bg-gray-100 hidden" id="logout-btn-mobile">
+     Logout
+    </button>
+   </div>
+  </nav>
+  <!-- Categories Section -->
+  <section class="max-w-7xl mx-auto px-4 py-12" id="categories">
+   <h2 class="text-3xl font-bold mb-8 text-center">
+    Shop by Category
+   </h2>
+   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6" id="categories-list">
+    <!-- Categories will be dynamically inserted here -->
+   </div>
+  </section>
+  <!-- Products Section -->
+  <section class="max-w-7xl mx-auto px-4 py-12 bg-white rounded-lg shadow" id="products">
+   <h2 class="text-3xl font-bold mb-8 text-center">
+    Featured Products
+   </h2>
+   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8" id="products-list">
+    <!-- Products will be dynamically inserted here -->
+   </div>
+  </section>
+  <!-- Advertising Section -->
+  <section class="max-w-7xl mx-auto px-4 py-12" id="advertising">
+   <h2 class="text-3xl font-bold mb-8 text-center">
+    Advertising
+   </h2>
+   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="advertising-list">
+    <!-- Advertising images will be dynamically inserted here -->
+   </div>
+  </section>
+  <!-- Cart Modal -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" id="cart-modal">
+   <div class="bg-white rounded-lg max-w-3xl w-full p-6 relative">
+    <button class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none" id="close-cart">
+     <i class="fas fa-times text-2xl">
+     </i>
+    </button>
+    <h3 class="text-2xl font-bold mb-4">
+     Your Cart
+    </h3>
+    <div class="space-y-4 max-h-96 overflow-y-auto" id="cart-items">
+     <!-- Cart items inserted here -->
+    </div>
+    <div class="mt-6 flex justify-between items-center font-semibold text-lg">
+     <span>
+      Total:
+     </span>
+     <span id="cart-total">
+      ₹0
+     </span>
+    </div>
+    <button class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded font-semibold transition" id="checkout-btn">
+     Checkout with Razorpay
+    </button>
+   </div>
+  </div>
+  <!-- Login Modal -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" id="login-modal">
+   <div class="bg-white rounded-lg max-w-md w-full p-6 relative">
+    <button class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none" id="close-login">
+     <i class="fas fa-times text-2xl">
+     </i>
+    </button>
+    <h3 class="text-2xl font-bold mb-6 text-center">
+     Login
+    </h3>
+    <form class="space-y-4" id="login-form">
+     <div>
+      <label class="block text-gray-700 font-semibold mb-1" for="login-email">
+       Email
+      </label>
+      <input class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="login-email" required="" type="email"/>
+     </div>
+     <div>
+      <label class="block text-gray-700 font-semibold mb-1" for="login-password">
+       Password
+      </label>
+      <input class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="login-password" required="" type="password"/>
+     </div>
+     <div class="text-red-600 text-sm hidden" id="login-error">
+     </div>
+     <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded font-semibold transition" type="submit">
+      Login
+     </button>
+    </form>
+    <p class="mt-4 text-center text-gray-600">
+     Don't have an account?
+     <button class="text-indigo-600 hover:underline font-semibold" id="switch-to-signup">
+      Sign Up
+     </button>
+    </p>
+   </div>
+  </div>
+  <!-- Signup Modal -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" id="signup-modal">
+   <div class="bg-white rounded-lg max-w-md w-full p-6 relative">
+    <button class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none" id="close-signup">
+     <i class="fas fa-times text-2xl">
+     </i>
+    </button>
+    <h3 class="text-2xl font-bold mb-6 text-center">
+     Sign Up
+    </h3>
+    <form class="space-y-4" id="signup-form">
+     <div>
+      <label class="block text-gray-700 font-semibold mb-1" for="signup-email">
+       Email
+      </label>
+      <input class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="signup-email" required="" type="email"/>
+     </div>
+     <div>
+      <label class="block text-gray-700 font-semibold mb-1" for="signup-password">
+       Password
+      </label>
+      <input class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="signup-password" minlength="6" required="" type="password"/>
+     </div>
+     <div class="text-red-600 text-sm hidden" id="signup-error">
+     </div>
+     <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded font-semibold transition" type="submit">
+      Sign Up
+     </button>
+    </form>
+    <p class="mt-4 text-center text-gray-600">
+     Already have an account?
+     <button class="text-indigo-600 hover:underline font-semibold" id="switch-to-login">
+      Login
+     </button>
+    </p>
+   </div>
+  </div>
+  <!-- Email Verification Modal -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" id="verify-modal">
+   <div class="bg-white rounded-lg max-w-md w-full p-6 relative">
+    <button class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none" id="close-verify">
+     <i class="fas fa-times text-2xl">
+     </i>
+    </button>
+    <h3 class="text-2xl font-bold mb-6 text-center">
+     Email Verification
+    </h3>
+    <p class="mb-4 text-center text-gray-700">
+     A verification code has been sent to your email. Please enter it below to verify your account.
+    </p>
+    <form class="space-y-4" id="verify-form">
+     <div>
+      <label class="block text-gray-700 font-semibold mb-1" for="verify-code">
+       Verification Code
+      </label>
+      <input class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="verify-code" maxlength="6" required="" type="text"/>
+     </div>
+     <div class="text-red-600 text-sm hidden" id="verify-error">
+     </div>
+     <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded font-semibold transition" type="submit">
+      Verify
+     </button>
+    </form>
+   </div>
+  </div>
+  <!-- Admin Dashboard Modal -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-auto z-50" id="admin-modal">
+   <div class="bg-white rounded-lg max-w-7xl w-full mx-auto my-12 p-6 relative shadow-lg">
+    <button class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none z-50" id="close-admin">
+     <i class="fas fa-times text-2xl">
+     </i>
+    </button>
+    <h2 class="text-3xl font-bold mb-6 text-center">
+     Admin Dashboard
+    </h2>
+    <div class="flex flex-col md:flex-row gap-6">
+     <nav class="md:w-1/4 bg-gray-100 rounded p-4 space-y-4 sticky top-20 h-fit">
+      <button class="admin-tab-btn w-full text-left font-semibold px-3 py-2 rounded bg-indigo-600 text-white" data-tab="brands">
+       Brands
+      </button>
+      <button class="admin-tab-btn w-full text-left font-semibold px-3 py-2 rounded hover:bg-indigo-600 hover:text-white" data-tab="categories">
+       Categories
+      </button>
+      <button class="admin-tab-btn w-full text-left font-semibold px-3 py-2 rounded hover:bg-indigo-600 hover:text-white" data-tab="products">
+       Products
+      </button>
+      <button class="admin-tab-btn w-full text-left font-semibold px-3 py-2 rounded hover:bg-indigo-600 hover:text-white" data-tab="advertising">
+       Advertising
+      </button>
+     </nav>
+     <div class="md:w-3/4 bg-gray-50 rounded p-6 max-h-[80vh] overflow-y-auto">
+      <!-- Brands Tab -->
+      <section class="admin-tab-content" id="admin-brands">
+       <h3 class="text-2xl font-bold mb-4">
+        Manage Brand
+       </h3>
+       <form class="space-y-4 mb-6" id="brand-form">
+        <div>
+         <label class="block font-semibold mb-1" for="brand-name-input">
+          Brand Name
+         </label>
+         <input class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="brand-name-input" required="" type="text"/>
+        </div>
+        <div>
+         <label class="block font-semibold mb-1" for="brand-icon-input">
+          Brand Icon URL
+         </label>
+         <input class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="brand-icon-input" placeholder="https://example.com/icon.png" required="" type="url"/>
+        </div>
+        <button class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded font-semibold transition" type="submit">
+         Update Brand
+        </button>
+       </form>
+      </section>
+      <!-- Categories Tab -->
+      <section class="admin-tab-content hidden" id="admin-categories">
+       <h3 class="text-2xl font-bold mb-4">
+        Manage Categories
+       </h3>
+       <form class="flex gap-4 mb-6" id="category-form">
+        <input class="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="category-name-input" placeholder="New Category Name" required="" type="text"/>
+        <button class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded font-semibold transition" type="submit">
+         Add Category
+        </button>
+       </form>
+       <ul class="space-y-2 max-h-64 overflow-y-auto border border-gray-300 rounded p-3 bg-white" id="category-list">
+        <!-- Categories listed here -->
+       </ul>
+      </section>
+      <!-- Products Tab -->
+      <section class="admin-tab-content hidden" id="admin-products">
+       <h3 class="text-2xl font-bold mb-4">
+        Manage Products
+       </h3>
+       <form class="space-y-4 mb-6" id="product-form">
+        <div>
+         <label class="block font-semibold mb-1" for="product-name-input">
+          Product Name
+         </label>
+         <input class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="product-name-input" required="" type="text"/>
+        </div>
+        <div>
+         <label class="block font-semibold mb-1" for="product-price-input">
+          Price (INR)
+         </label>
+         <input class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="product-price-input" min="1" required="" type="number"/>
+        </div>
+        <div>
+         <label class="block font-semibold mb-1" for="product-category-input">
+          Category
+         </label>
+         <select class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="product-category-input" required="">
+          <!-- Categories options inserted here -->
+         </select>
+        </div>
+        <div>
+         <label class="block font-semibold mb-1" for="product-image-input">
+          Product Image URL
+         </label>
+         <input class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="product-image-input" placeholder="https://example.com/product.png" required="" type="url"/>
+        </div>
+        <button class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded font-semibold transition" type="submit">
+         Add Product
+        </button>
+       </form>
+       <ul class="space-y-4 max-h-64 overflow-y-auto border border-gray-300 rounded p-3 bg-white" id="product-list">
+        <!-- Products listed here -->
+       </ul>
+      </section>
+      <!-- Advertising Tab -->
+      <section class="admin-tab-content hidden" id="admin-advertising">
+       <h3 class="text-2xl font-bold mb-4">
+        Manage Advertising Images
+       </h3>
+       <form class="flex gap-4 mb-6" id="advertising-form">
+        <input class="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="advertising-image-input" placeholder="https://example.com/advertising.png" required="" type="url"/>
+        <button class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded font-semibold transition" type="submit">
+         Add Advertising Image
+        </button>
+       </form>
+       <ul class="space-y-4 max-h-64 overflow-y-auto border border-gray-300 rounded p-3 bg-white" id="advertising-list-admin">
+        <!-- Advertising images listed here -->
+       </ul>
+      </section>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+   // Data storage keys
+    const STORAGE_KEYS = {
+      brand: 'nike_clone_brand',
+      categories: 'nike_clone_categories',
+      products: 'nike_clone_products',
+      advertising: 'nike_clone_advertising',
+      users: 'nike_clone_users',
+      currentUser: 'nike_clone_current_user',
+      cart: 'nike_clone_cart',
+      emailVerificationCodes: 'nike_clone_email_verification_codes'
+    };
+
+    // Default data
+    const defaultBrand = {
+      name: 'Nike',
+      icon: 'https://placehold.co/40x40/png?text=N'
+    };
+
+    const defaultCategories = [
+      'Men',
+      'Women',
+      'Kids',
+      'Shoes',
+      'Clothing',
+      'Accessories',
+      'Sportswear',
+      'Running',
+    ];
+
+    const defaultProducts = [
+      {
+        id: 'p1',
+        name: 'Air Zoom Pegasus 38',
+        priceINR: 7999,
+        category: 'Running',
+        image: 'https://placehold.co/400x400/png?text=Air+Zoom+Pegasus+38+Running+Shoes',
+      },
+      {
+        id: 'p2',
+        name: 'Nike Sportswear Club Fleece',
+        priceINR: 2999,
+        category: 'Clothing',
+        image: 'https://placehold.co/400x400/png?text=Nike+Sportswear+Club+Fleece+Sweatshirt',
+      },
+      {
+        id: 'p3',
+        name: 'Air Force 1 \'07',
+        priceINR: 9999,
+        category: 'Shoes',
+        image: 'https://placehold.co/400x400/png?text=Air+Force+1+07+Classic+Sneakers',
+      },
+      {
+        id: 'p4',
+        name: 'Nike Dri-FIT ADV',
+        priceINR: 3499,
+        category: 'Sportswear',
+        image: 'https://placehold.co/400x400/png?text=Nike+Dri-FIT+ADV+Training+Top',
+      },
+      {
+        id: 'p5',
+        name: 'Nike Heritage Backpack',
+        priceINR: 2599,
+        category: 'Accessories',
+        image: 'https://placehold.co/400x400/png?text=Nike+Heritage+Backpack+Black',
+      },
+      {
+        id: 'p6',
+        name: 'Nike Pro Tights',
+        priceINR: 1999,
+        category: 'Clothing',
+        image: 'https://placehold.co/400x400/png?text=Nike+Pro+Tights+Black',
+      },
+      {
+        id: 'p7',
+        name: 'Nike React Infinity Run',
+        priceINR: 8999,
+        category: 'Running',
+        image: 'https://placehold.co/400x400/png?text=Nike+React+Infinity+Run+Flyknit+Shoes',
+      },
+      {
+        id: 'p8',
+        name: 'Nike Everyday Socks',
+        priceINR: 499,
+        category: 'Accessories',
+        image: 'https://placehold.co/400x400/png?text=Nike+Everyday+Socks+3-Pack',
+      }
+    ];
+
+    const defaultAdvertising = [
+      {
+        id: 'a1',
+        image: 'https://placehold.co/600x400/png?text=Nike+Advertising+Campaign+1+with+athlete+jumping+in+stadium',
+      },
+      {
+        id: 'a2',
+        image: 'https://placehold.co/600x400/png?text=Nike+Advertising+Campaign+2+with+new+shoe+release+on+urban+background',
+      },
+      {
+        id: 'a3',
+        image: 'https://placehold.co/600x400/png?text=Nike+Advertising+Campaign+3+with+group+of+runners+training+outdoors',
+      }
+    ];
+
+    // Admin credentials (hardcoded)
+    const ADMIN_EMAIL = 'parassaxena12@gmail.com';
+    const ADMIN_PASSWORD = 'demonsoul0506';
+
+    // Utility functions for localStorage
+    function saveData(key, data) {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+    function loadData(key, defaultValue) {
+      const data = localStorage.getItem(key);
+      if (data) {
+        try {
+          return JSON.parse(data);
+        } catch {
+          return defaultValue;
+        }
+      }
+      return defaultValue;
+    }
+
+    // Initialize data if not present
+    if (!localStorage.getItem(STORAGE_KEYS.brand)) {
+      saveData(STORAGE_KEYS.brand, defaultBrand);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.categories)) {
+      saveData(STORAGE_KEYS.categories, defaultCategories);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.products)) {
+      saveData(STORAGE_KEYS.products, defaultProducts);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.advertising)) {
+      saveData(STORAGE_KEYS.advertising, defaultAdvertising);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.users)) {
+      // Pre-create admin user with verified true
+      const adminUser = {
+        email: ADMIN_EMAIL,
+        password: ADMIN_PASSWORD,
+        verified: true,
+        isAdmin: true,
+      };
+      saveData(STORAGE_KEYS.users, [adminUser]);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.cart)) {
+      saveData(STORAGE_KEYS.cart, []);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.emailVerificationCodes)) {
+      saveData(STORAGE_KEYS.emailVerificationCodes, {});
+    }
+
+    // State variables
+    let brand = loadData(STORAGE_KEYS.brand, defaultBrand);
+    let categories = loadData(STORAGE_KEYS.categories, defaultCategories);
+    let products = loadData(STORAGE_KEYS.products, defaultProducts);
+    let advertising = loadData(STORAGE_KEYS.advertising, defaultAdvertising);
+    let users = loadData(STORAGE_KEYS.users, []);
+    let currentUser = loadData(STORAGE_KEYS.currentUser, null);
+    let cart = loadData(STORAGE_KEYS.cart, []);
+    let emailVerificationCodes = loadData(STORAGE_KEYS.emailVerificationCodes, {});
+
+    // DOM Elements
+    const brandNameEl = document.getElementById('brand-name');
+    const brandIconEl = document.getElementById('brand-icon');
+    const categoriesListEl = document.getElementById('categories-list');
+    const productsListEl = document.getElementById('products-list');
+    const advertisingListEl = document.getElementById('advertising-list');
+    const advertisingListAdminEl = document.getElementById('advertising-list-admin');
+    const cartCountEl = document.getElementById('cart-count');
+    const cartCountMobileEl = document.getElementById('cart-count-mobile');
+    const cartModal = document.getElementById('cart-modal');
+    const cartItemsEl = document.getElementById('cart-items');
+    const cartTotalEl = document.getElementById('cart-total');
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    const loginModal = document.getElementById('login-modal');
+    const signupModal = document.getElementById('signup-modal');
+    const verifyModal = document.getElementById('verify-modal');
+    const adminModal = document.getElementById('admin-modal');
+
+    const loginBtn = document.getElementById('login-btn');
+    const signupBtn = document.getElementById('signup-btn');
+    const adminBtn = document.getElementById('admin-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    const loginBtnMobile = document.getElementById('login-btn-mobile');
+    const signupBtnMobile = document.getElementById('signup-btn-mobile');
+    const adminBtnMobile = document.getElementById('admin-btn-mobile');
+    const logoutBtnMobile = document.getElementById('logout-btn-mobile');
+
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    // Admin tabs
+    const adminTabButtons = document.querySelectorAll('.admin-tab-btn');
+    const adminTabContents = document.querySelectorAll('.admin-tab-content');
+
+    // Forms
+    const brandForm = document.getElementById('brand-form');
+    const categoryForm = document.getElementById('category-form');
+    const productForm = document.getElementById('product-form');
+    const advertisingForm = document.getElementById('advertising-form');
+
+    const categoryListEl = document.getElementById('category-list');
+    const productListEl = document.getElementById('product-list');
+
+    // Login/signup forms and elements
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const verifyForm = document.getElementById('verify-form');
+
+    const loginErrorEl = document.getElementById('login-error');
+    const signupErrorEl = document.getElementById('signup-error');
+    const verifyErrorEl = document.getElementById('verify-error');
+
+    const switchToSignupBtn = document.getElementById('switch-to-signup');
+    const switchToLoginBtn = document.getElementById('switch-to-login');
+
+    // Inputs for admin brand
+    const brandNameInput = document.getElementById('brand-name-input');
+    const brandIconInput = document.getElementById('brand-icon-input');
+
+    // Inputs for admin category
+    const categoryNameInput = document.getElementById('category-name-input');
+
+    // Inputs for admin product
+    const productNameInput = document.getElementById('product-name-input');
+    const productPriceInput = document.getElementById('product-price-input');
+    const productCategoryInput = document.getElementById('product-category-input');
+    const productImageInput = document.getElementById('product-image-input');
+
+    // Input for admin advertising
+    const advertisingImageInput = document.getElementById('advertising-image-input');
+
+    // Verification code input
+    const verifyCodeInput = document.getElementById('verify-code');
+
+    // Cart open/close buttons
+    const closeCartBtn = document.getElementById('close-cart');
+
+    // Login modal close
+    const closeLoginBtn = document.getElementById('close-login');
+
+    // Signup modal close
+    const closeSignupBtn = document.getElementById('close-signup');
+
+    // Verify modal close
+    const closeVerifyBtn = document.getElementById('close-verify');
+
+    // Admin modal close
+    const closeAdminBtn = document.getElementById('close-admin');
+
+    // State for email verification process
+    let pendingVerificationEmail = null;
+
+    // Utility: generate random 6-digit code
+    function generateVerificationCode() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    // Utility: show/hide modals
+    function showModal(modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+    function hideModal(modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    // Utility: update brand display
+    function updateBrandDisplay() {
+      brandNameEl.textContent = brand.name;
+      brandIconEl.src = brand.icon;
+      brandIconEl.alt = `${brand.name} brand icon`;
+    }
+
+    // Utility: render categories
+    function renderCategories() {
+      categoriesListEl.innerHTML = '';
+      categories.forEach((cat) => {
+        const catCard = document.createElement('div');
+        catCard.className = 'bg-white rounded-lg shadow p-6 flex flex-col items-center cursor-pointer hover:shadow-lg transition';
+        const catImg = document.createElement('img');
+        catImg.src = `https://placehold.co/200x200/png?text=${encodeURIComponent(cat)}`;
+        catImg.alt = `Category image representing ${cat} products with Nike branding`;
+        catImg.className = 'w-32 h-32 object-cover rounded mb-4';
+        const catName = document.createElement('h3');
+        catName.textContent = cat;
+        catName.className = 'text-lg font-semibold text-gray-800';
+        catCard.appendChild(catImg);
+        catCard.appendChild(catName);
+        categoriesListEl.appendChild(catCard);
+      });
+    }
+
+    // Utility: render products
+    function renderProducts() {
+      productsListEl.innerHTML = '';
+      products.forEach((prod) => {
+        const prodCard = document.createElement('div');
+        prodCard.className = 'bg-white rounded-lg shadow p-4 flex flex-col';
+        const prodImg = document.createElement('img');
+        prodImg.src = prod.image;
+        prodImg.alt = `Product image of ${prod.name} in Nike style with white background`;
+        prodImg.className = 'w-full h-48 object-cover rounded mb-4';
+        const prodName = document.createElement('h3');
+        prodName.textContent = prod.name;
+        prodName.className = 'text-lg font-semibold text-gray-900 mb-1';
+        const prodCategory = document.createElement('p');
+        prodCategory.textContent = prod.category;
+        prodCategory.className = 'text-sm text-gray-600 mb-2';
+        const prodPrice = document.createElement('p');
+        prodPrice.textContent = `₹${prod.priceINR.toLocaleString('en-IN')}`;
+        prodPrice.className = 'text-indigo-600 font-bold text-lg mb-4';
+        const addToCartBtn = document.createElement('button');
+        addToCartBtn.textContent = 'Add to Cart';
+        addToCartBtn.className = 'mt-auto bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded font-semibold transition';
+        addToCartBtn.addEventListener('click', () => addToCart(prod.id));
+        prodCard.appendChild(prodImg);
+        prodCard.appendChild(prodName);
+        prodCard.appendChild(prodCategory);
+        prodCard.appendChild(prodPrice);
+        prodCard.appendChild(addToCartBtn);
+        productsListEl.appendChild(prodCard);
+      });
+    }
+
+    // Utility: render advertising images
+    function renderAdvertising() {
+      advertisingListEl.innerHTML = '';
+      advertising.forEach((ad) => {
+        const adDiv = document.createElement('div');
+        adDiv.className = 'rounded overflow-hidden shadow hover:shadow-lg transition cursor-pointer';
+        const adImg = document.createElement('img');
+        adImg.src = ad.image;
+        adImg.alt = `Advertising image showing Nike campaign with dynamic sports imagery`;
+        adImg.className = 'w-full h-48 object-cover';
+        adDiv.appendChild(adImg);
+        advertisingListEl.appendChild(adDiv);
+      });
+    }
+
+    // Utility: render advertising images in admin
+    function renderAdvertisingAdmin() {
+      advertisingListAdminEl.innerHTML = '';
+      advertising.forEach((ad) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between bg-white p-2 rounded shadow';
+        const img = document.createElement('img');
+        img.src = ad.image;
+        img.alt = `Advertising image showing Nike campaign with dynamic sports imagery`;
+        img.className = 'w-24 h-16 object-cover rounded';
+        const delBtn = document.createElement('button');
+        delBtn.className = 'text-red-600 hover:text-red-800';
+        delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        delBtn.title = 'Delete Advertising Image';
+        delBtn.addEventListener('click', () => {
+          advertising = advertising.filter((a) => a.id !== ad.id);
+          saveData(STORAGE_KEYS.advertising, advertising);
+          renderAdvertisingAdmin();
+          renderAdvertising();
+        });
+        li.appendChild(img);
+        li.appendChild(delBtn);
+        advertisingListAdminEl.appendChild(li);
+      });
+    }
+
+    // Utility: render categories in admin list
+    function renderCategoriesAdmin() {
+      categoryListEl.innerHTML = '';
+      categories.forEach((cat) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between bg-white p-2 rounded shadow';
+        li.textContent = cat;
+        const delBtn = document.createElement('button');
+        delBtn.className = 'text-red-600 hover:text-red-800';
+        delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        delBtn.title = 'Delete Category';
+        delBtn.addEventListener('click', () => {
+          categories = categories.filter((c) => c !== cat);
+          saveData(STORAGE_KEYS.categories, categories);
+          renderCategoriesAdmin();
+          renderCategories();
+          renderProductCategoryOptions();
+        });
+        li.appendChild(delBtn);
+        categoryListEl.appendChild(li);
+      });
+    }
+
+    // Utility: render product category options in admin form
+    function renderProductCategoryOptions() {
+      productCategoryInput.innerHTML = '';
+      categories.forEach((cat) => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        productCategoryInput.appendChild(option);
+      });
+    }
+
+    // Utility: render products in admin list
+    function renderProductsAdmin() {
+      productListEl.innerHTML = '';
+      products.forEach((prod) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between bg-white p-2 rounded shadow';
+        const leftDiv = document.createElement('div');
+        leftDiv.className = 'flex items-center space-x-4';
+        const img = document.createElement('img');
+        img.src = prod.image;
+        img.alt = `Product image of ${prod.name} in Nike style with white background`;
+        img.className = 'w-16 h-16 object-cover rounded';
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'flex flex-col';
+        const nameP = document.createElement('p');
+        nameP.textContent = prod.name;
+        nameP.className = 'font-semibold';
+        const catP = document.createElement('p');
+        catP.textContent = prod.category;
+        catP.className = 'text-sm text-gray-600';
+        infoDiv.appendChild(nameP);
+        infoDiv.appendChild(catP);
+        leftDiv.appendChild(img);
+        leftDiv.appendChild(infoDiv);
+        const rightDiv = document.createElement('div');
+        rightDiv.className = 'flex items-center space-x-4';
+        const priceP = document.createElement('p');
+        priceP.textContent = `₹${prod.priceINR.toLocaleString('en-IN')}`;
+        priceP.className = 'font-semibold text-indigo-600';
+        const delBtn = document.createElement('button');
+        delBtn.className = 'text-red-600 hover:text-red-800';
+        delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        delBtn.title = 'Delete Product';
+        delBtn.addEventListener('click', () => {
+          products = products.filter((p) => p.id !== prod.id);
+          saveData(STORAGE_KEYS.products, products);
+          renderProductsAdmin();
+          renderProducts();
+        });
+        rightDiv.appendChild(priceP);
+        rightDiv.appendChild(delBtn);
+        li.appendChild(leftDiv);
+        li.appendChild(rightDiv);
+        productListEl.appendChild(li);
+      });
+    }
+
+    // Utility: update cart count display
+    function updateCartCount() {
+      const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+      cartCountEl.textContent = count;
+      cartCountMobileEl.textContent = count;
+    }
+
+    // Utility: render cart items
+    function renderCart() {
+      cartItemsEl.innerHTML = '';
+      if (cart.length === 0) {
+        cartItemsEl.innerHTML = '<p class="text-center text-gray-600">Your cart is empty.</p>';
+        cartTotalEl.textContent = '₹0';
+        checkoutBtn.disabled = true;
+        checkoutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        return;
+      }
+      checkoutBtn.disabled = false;
+      checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      let total = 0;
+      cart.forEach((item) => {
+        const prod = products.find((p) => p.id === item.productId);
+        if (!prod) return;
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'flex items-center justify-between bg-white p-3 rounded shadow';
+        const leftDiv = document.createElement('div');
+        leftDiv.className = 'flex items-center space-x-4';
+        const img = document.createElement('img');
+        img.src = prod.image;
+        img.alt = `Product image of ${prod.name} in Nike style with white background`;
+        img.className = 'w-16 h-16 object-cover rounded';
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'flex flex-col';
+        const nameP = document.createElement('p');
+        nameP.textContent = prod.name;
+        nameP.className = 'font-semibold';
+        const priceP = document.createElement('p');
+        priceP.textContent = `₹${prod.priceINR.toLocaleString('en-IN')} x ${item.quantity}`;
+        priceP.className = 'text-sm text-gray-600';
+        infoDiv.appendChild(nameP);
+        infoDiv.appendChild(priceP);
+        leftDiv.appendChild(img);
+        leftDiv.appendChild(infoDiv);
+        const rightDiv = document.createElement('div');
+        rightDiv.className = 'flex items-center space-x-2';
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'number';
+        qtyInput.min = '1';
+        qtyInput.value = item.quantity;
+        qtyInput.className = 'w-16 border border-gray-300 rounded px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-indigo-500';
+        qtyInput.addEventListener('change', (e) => {
+          let val = parseInt(e.target.value);
+          if (isNaN(val) || val < 1) val = 1;
+          e.target.value = val;
+          updateCartItemQuantity(item.productId, val);
+        });
+        const delBtn = document.createElement('button');
+        delBtn.className = 'text-red-600 hover:text-red-800';
+        delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        delBtn.title = 'Remove from Cart';
+        delBtn.addEventListener('click', () => {
+          removeFromCart(item.productId);
+        });
+        rightDiv.appendChild(qtyInput);
+        rightDiv.appendChild(delBtn);
+        itemDiv.appendChild(leftDiv);
+        itemDiv.appendChild(rightDiv);
+        cartItemsEl.appendChild(itemDiv);
+        total += prod.priceINR * item.quantity;
+      });
+      cartTotalEl.textContent = `₹${total.toLocaleString('en-IN')}`;
+    }
+
+    // Add product to cart
+    function addToCart(productId) {
+      if (!currentUser) {
+        alert('Please login to add products to cart.');
+        openLoginModal();
+        return;
+      }
+      const existingItem = cart.find((item) => item.productId === productId);
+      if (existingItem) {
+        existingItem.quantity++;
+      } else {
+        cart.push({ productId, quantity: 1 });
+      }
+      saveData(STORAGE_KEYS.cart, cart);
+      updateCartCount();
+      alert('Product added to cart!');
+    }
+
+    // Update cart item quantity
+    function updateCartItemQuantity(productId, quantity) {
+      const item = cart.find((i) => i.productId === productId);
+      if (item) {
+        item.quantity = quantity;
+        saveData(STORAGE_KEYS.cart, cart);
+        updateCartCount();
+        renderCart();
+      }
+    }
+
+    // Remove from cart
+    function removeFromCart(productId) {
+      cart = cart.filter((i) => i.productId !== productId);
+      saveData(STORAGE_KEYS.cart, cart);
+      updateCartCount();
+      renderCart();
+    }
+
+    // Open cart modal
+    function openCartModal() {
+      if (!currentUser) {
+        alert('Please login to view your cart.');
+        openLoginModal();
+        return;
+      }
+      renderCart();
+      showModal(cartModal);
+    }
+
+    // Close cart modal
+    closeCartBtn.addEventListener('click', () => {
+      hideModal(cartModal);
+    });
+
+    // Mobile menu toggle
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Login modal open/close
+    function openLoginModal() {
+      loginErrorEl.classList.add('hidden');
+      loginForm.reset();
+      showModal(loginModal);
+    }
+    function closeLoginModal() {
+      hideModal(loginModal);
+    }
+    loginBtn.addEventListener('click', openLoginModal);
+    loginBtnMobile.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      openLoginModal();
+    });
+    closeLoginBtn.addEventListener('click', closeLoginModal);
+
+    // Signup modal open/close
+    function openSignupModal() {
+      signupErrorEl.classList.add('hidden');
+      signupForm.reset();
+      showModal(signupModal);
+    }
+    function closeSignupModal() {
+      hideModal(signupModal);
+    }
+    signupBtn.addEventListener('click', openSignupModal);
+    signupBtnMobile.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      openSignupModal();
+    });
+    closeSignupBtn.addEventListener('click', closeSignupModal);
+
+    // Switch between login and signup modals
+    switchToSignupBtn.addEventListener('click', () => {
+      closeLoginModal();
+      openSignupModal();
+    });
+    switchToLoginBtn.addEventListener('click', () => {
+      closeSignupModal();
+      openLoginModal();
+    });
+
+    // Verify modal open/close
+    function openVerifyModal() {
+      verifyErrorEl.classList.add('hidden');
+      verifyForm.reset();
+      showModal(verifyModal);
+    }
+    function closeVerifyModal() {
+      hideModal(verifyModal);
+    }
+    closeVerifyBtn.addEventListener('click', closeVerifyModal);
+
+    // Admin modal open/close
+    function openAdminModal() {
+      showModal(adminModal);
+      // Load brand data into form
+      brandNameInput.value = brand.name;
+      brandIconInput.value = brand.icon;
+      renderCategoriesAdmin();
+      renderProductsAdmin();
+      renderAdvertisingAdmin();
+      renderProductCategoryOptions();
+      // Show first tab by default
+      adminTabButtons.forEach((btn) => btn.classList.remove('bg-indigo-600', 'text-white'));
+      adminTabButtons[0].classList.add('bg-indigo-600', 'text-white');
+      adminTabContents.forEach((sec) => sec.classList.add('hidden'));
+      adminTabContents[0].classList.remove('hidden');
+    }
+    function closeAdminModal() {
+      hideModal(adminModal);
+    }
+    adminBtn.addEventListener('click', openAdminModal);
+    adminBtnMobile.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      openAdminModal();
+    });
+    closeAdminBtn.addEventListener('click', closeAdminModal);
+
+    // Admin tab switching
+    adminTabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        adminTabButtons.forEach((b) => b.classList.remove('bg-indigo-600', 'text-white'));
+        btn.classList.add('bg-indigo-600', 'text-white');
+        const tab = btn.getAttribute('data-tab');
+        adminTabContents.forEach((sec) => {
+          if (sec.id === `admin-${tab}`) {
+            sec.classList.remove('hidden');
+          } else {
+            sec.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // Brand form submit
+    brandForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newName = brandNameInput.value.trim();
+      const newIcon = brandIconInput.value.trim();
+      if (!newName || !newIcon) {
+        alert('Please fill in both brand name and icon URL.');
+        return;
+      }
+      brand.name = newName;
+      brand.icon = newIcon;
+      saveData(STORAGE_KEYS.brand, brand);
+      updateBrandDisplay();
+      alert('Brand updated successfully.');
+    });
+
+    // Category form submit
+    categoryForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newCat = categoryNameInput.value.trim();
+      if (!newCat) {
+        alert('Please enter a category name.');
+        return;
+      }
+      if (categories.includes(newCat)) {
+        alert('Category already exists.');
+        return;
+      }
+      categories.push(newCat);
+      saveData(STORAGE_KEYS.categories, categories);
+      categoryNameInput.value = '';
+      renderCategoriesAdmin();
+      renderCategories();
+      renderProductCategoryOptions();
+    });
+
+    // Product form submit
+    productForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = productNameInput.value.trim();
+      const price = parseInt(productPriceInput.value);
+      const category = productCategoryInput.value;
+      const image = productImageInput.value.trim();
+      if (!name || !price || !category || !image) {
+        alert('Please fill in all product fields.');
+        return;
+      }
+      if (price <= 0) {
+        alert('Price must be greater than zero.');
+        return;
+      }
+      const newProduct = {
+        id: 'p' + Date.now(),
+        name,
+        priceINR: price,
+        category,
+        image,
+      };
+      products.push(newProduct);
+      saveData(STORAGE_KEYS.products, products);
+      productForm.reset();
+      renderProductsAdmin();
+      renderProducts();
+    });
+
+    // Advertising form submit
+    advertisingForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const image = advertisingImageInput.value.trim();
+      if (!image) {
+        alert('Please enter an image URL.');
+        return;
+      }
+      const newAd = {
+        id: 'a' + Date.now(),
+        image,
+      };
+      advertising.push(newAd);
+      saveData(STORAGE_KEYS.advertising, advertising);
+      advertisingImageInput.value = '';
+      renderAdvertisingAdmin();
+      renderAdvertising();
+    });
+
+    // Login form submit
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      loginErrorEl.classList.add('hidden');
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+      if (!email || !password) {
+        loginErrorEl.textContent = 'Please enter email and password.';
+        loginErrorEl.classList.remove('hidden');
+        return;
+      }
+      const user = users.find((u) => u.email === email);
+      if (!user) {
+        loginErrorEl.textContent = 'User not found.';
+        loginErrorEl.classList.remove('hidden');
+        return;
+      }
+      if (user.password !== password) {
+        loginErrorEl.textContent = 'Incorrect password.';
+        loginErrorEl.classList.remove('hidden');
+        return;
+      }
+      if (!user.verified) {
+        alert('Your email is not verified. Please verify your email before logging in.');
+        pendingVerificationEmail = email;
+        openVerifyModal();
+        closeLoginModal();
+        return;
+      }
+      currentUser = user;
+      saveData(STORAGE_KEYS.currentUser, currentUser);
+      closeLoginModal();
+      postLoginSetup();
+      alert(`Welcome back, ${email}!`);
+    });
+
+    // Signup form submit
+    signupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      signupErrorEl.classList.add('hidden');
+      const email = document.getElementById('signup-email').value.trim().toLowerCase();
+      const password = document.getElementById('signup-password').value;
+      if (!email || !password) {
+        signupErrorEl.textContent = 'Please enter email and password.';
+        signupErrorEl.classList.remove('hidden');
+        return;
+      }
+      if (password.length < 6) {
+        signupErrorEl.textContent = 'Password must be at least 6 characters.';
+        signupErrorEl.classList.remove('hidden');
+        return;
+      }
+      if (users.find((u) => u.email === email)) {
+        signupErrorEl.textContent = 'Email already registered.';
+        signupErrorEl.classList.remove('hidden');
+        return;
+      }
+      // Create user with verified false
+      const newUser = {
+        email,
+        password,
+        verified: false,
+        isAdmin: false,
+      };
+      users.push(newUser);
+      saveData(STORAGE_KEYS.users, users);
+      pendingVerificationEmail = email;
+      sendVerificationCode(email);
+      closeSignupModal();
+      openVerifyModal();
+    });
+
+    // Send verification code (simulate email sending)
+    function sendVerificationCode(email) {
+      const code = generateVerificationCode();
+      emailVerificationCodes[email] = code;
+      saveData(STORAGE_KEYS.emailVerificationCodes, emailVerificationCodes);
+      alert(`Verification code sent to ${email}: ${code} (Simulated email)`); // In real app, send email
+    }
+
+    // Verify form submit
+    verifyForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      verifyErrorEl.classList.add('hidden');
+      const codeEntered = verifyCodeInput.value.trim();
+      if (!pendingVerificationEmail) {
+        verifyErrorEl.textContent = 'No email pending verification.';
+        verifyErrorEl.classList.remove('hidden');
+        return;
+      }
+      const correctCode = emailVerificationCodes[pendingVerificationEmail];
+      if (codeEntered !== correctCode) {
+        verifyErrorEl.textContent = 'Incorrect verification code.';
+        verifyErrorEl.classList.remove('hidden');
+        return;
+      }
+      // Mark user as verified
+      const user = users.find((u) => u.email === pendingVerificationEmail);
+      if (user) {
+        user.verified = true;
+        saveData(STORAGE_KEYS.users, users);
+        delete emailVerificationCodes[pendingVerificationEmail];
+        saveData(STORAGE_KEYS.emailVerificationCodes, emailVerificationCodes);
+        currentUser = user;
+        saveData(STORAGE_KEYS.currentUser, currentUser);
+        alert('Email verified successfully! You are now logged in.');
+        pendingVerificationEmail = null;
+        closeVerifyModal();
+        postLoginSetup();
+      } else {
+        verifyErrorEl.textContent = 'User not found.';
+        verifyErrorEl.classList.remove('hidden');
+      }
+    });
+
+    // Logout
+    function logout() {
+      currentUser = null;
+      saveData(STORAGE_KEYS.currentUser, null);
+      cart = [];
+      saveData(STORAGE_KEYS.cart, cart);
+      updateCartCount();
+      updateAuthButtons();
+      alert('You have been logged out.');
+    }
+    logoutBtn.addEventListener('click', logout);
+    logoutBtnMobile.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      logout();
+    });
+
+    // Post login setup
+    function postLoginSetup() {
+      updateAuthButtons();
+      // Load user cart if any
+      cart = loadData(STORAGE_KEYS.cart, []);
+      updateCartCount();
+    }
+
+    // Update auth buttons visibility
+    function updateAuthButtons() {
+      if (currentUser) {
+        loginBtn.classList.add('hidden');
+        signupBtn.classList.add('hidden');
+        loginBtnMobile.classList.add('hidden');
+        signupBtnMobile.classList.add('hidden');
+        logoutBtn.classList.remove('hidden');
+        logoutBtnMobile.classList.remove('hidden');
+        if (currentUser.isAdmin) {
+          adminBtn.classList.remove('hidden');
+          adminBtnMobile.classList.remove('hidden');
+        } else {
+          adminBtn.classList.add('hidden');
+          adminBtnMobile.classList.add('hidden');
+        }
+      } else {
+        loginBtn.classList.remove('hidden');
+        signupBtn.classList.remove('hidden');
+        loginBtnMobile.classList.remove('hidden');
+        signupBtnMobile.classList.remove('hidden');
+        logoutBtn.classList.add('hidden');
+        logoutBtnMobile.classList.add('hidden');
+        adminBtn.classList.add('hidden');
+        adminBtnMobile.classList.add('hidden');
+      }
+    }
+
+    // Checkout with Razorpay
+    checkoutBtn.addEventListener('click', () => {
+      if (!currentUser) {
+        alert('Please login to checkout.');
+        openLoginModal();
+        return;
+      }
+      if (cart.length === 0) {
+        alert('Your cart is empty.');
+        return;
+      }
+      // Calculate total amount in INR paise
+      let totalAmount = 0;
+      cart.forEach((item) => {
+        const prod = products.find((p) => p.id === item.productId);
+        if (prod) {
+          totalAmount += prod.priceINR * item.quantity;
+        }
+      });
+      const amountInPaise = totalAmount * 100;
+
+      // Razorpay options
+      const options = {
+        key: 'rzp_test_1DP5mmOlF5G5ag', // Replace with your Razorpay key
+        amount: amountInPaise,
+        currency: 'INR',
+        name: brand.name,
+        description: 'Purchase from ' + brand.name,
+        image: brand.icon,
+        handler: function (response) {
+          alert('Payment successful! Payment ID: ' + response.razorpay_payment_id);
+          // Clear cart after successful payment
+          cart = [];
+          saveData(STORAGE_KEYS.cart, cart);
+          updateCartCount();
+          hideModal(cartModal);
+        },
+        prefill: {
+          email: currentUser.email,
+        },
+        theme: {
+          color: '#4F46E5',
+        },
+      };
+      const rzp = new Razorpay(options);
+      rzp.open();
+    });
+
+    // Cart button click open modal
+    document.querySelectorAll('a[href="#cart"]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        openCartModal();
+        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+          mobileMenu.classList.add('hidden');
+        }
+      });
+    });
+
+    // Initial render
+    updateBrandDisplay();
+    renderCategories();
+    renderProducts();
+    renderAdvertising();
+    updateCartCount();
+    updateAuthButtons();
+  </script>
+ </body>
+</html>
